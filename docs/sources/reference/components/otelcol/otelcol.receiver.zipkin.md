@@ -49,7 +49,10 @@ You can use the following arguments with `otelcol.receiver.zipkin`:
 | `parse_string_tags`      | `bool`                     | Parse string tags and binary annotations into non-string types.              | `false`                                                    | no       |
 | `read_header_timeout`    | `duration`                 | Maximum time allowed to read request headers.                                | `"1m"`                                                     | no       |
 | `read_timeout`           | `duration`                 | Maximum time allowed to read an HTTP request, including the body.            | `""`                                                       | no       |
+| `transport`              | `string`                   | Transport to use for the HTTP server.                                        | `"tcp"`                                                    | no       |
 | `write_timeout`          | `duration`                 | Maximum time allowed to write an HTTP response.                              | `"30s"`                                                    | no       |
+
+{{< docs/shared lookup="reference/components/otelcol-http-vsock-transport.md" source="alloy" version="<ALLOY_VERSION>" >}}
 
 
 If `parse_string_tags` is `true`, string tags and binary annotations are converted to `int`, `bool`, and `float` if possible.

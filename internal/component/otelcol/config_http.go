@@ -1,6 +1,7 @@
 package otelcol
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/alecthomas/units"
@@ -18,6 +19,9 @@ import (
 // servers.
 type HTTPServerArguments struct {
 	Endpoint string `alloy:"endpoint,attr,optional"`
+
+	// Transport to use for the HTTP server. Defaults to "tcp" when empty.
+	Transport string `alloy:"transport,attr,optional"`
 
 	TLS *TLSServerArguments `alloy:"tls,block,optional"`
 
@@ -49,6 +53,36 @@ const (
 	DefaultHTTPServerReadHeaderTimeout = 1 * time.Minute
 	DefaultHTTPServerWriteTimeout      = 30 * time.Second
 )
+
+// serverTransport resolves the transport for an HTTP server, defaulting to TCP
+// when unset. Only stream-oriented transports are accepted: an *http.Server
+// needs a net.Listener, so datagram transports such as "udp" or "unixgram"
+// can't be used even though confignet accepts them for clients.
+func serverTransport(transport string) (confignet.TransportType, error) {
+	switch tt := confignet.TransportType(transport); tt {
+	case "":
+		return confignet.TransportTypeTCP, nil
+	case confignet.TransportTypeTCP,
+		confignet.TransportTypeTCP4,
+		confignet.TransportTypeTCP6,
+		confignet.TransportTypeUnix,
+		confignet.TransportTypeUnixPacket,
+		confignet.TransportTypeNpipe,
+		confignet.TransportTypeVsock:
+		return tt, nil
+	default:
+		return "", fmt.Errorf("invalid transport %q for an HTTP server: expected one of "+
+			"%q, %q, %q, %q, %q, %q, or %q",
+			transport,
+			confignet.TransportTypeTCP,
+			confignet.TransportTypeTCP4,
+			confignet.TransportTypeTCP6,
+			confignet.TransportTypeUnix,
+			confignet.TransportTypeUnixPacket,
+			confignet.TransportTypeNpipe,
+			confignet.TransportTypeVsock)
+	}
+}
 
 func copyStringSlice(s []string) []string {
 	if s == nil {
@@ -85,8 +119,13 @@ func (args *HTTPServerArguments) Convert() (configoptional.Optional[otelconfight
 		keepAliveEnabled = *args.KeepAlivesEnabled
 	}
 
+	transport, err := serverTransport(args.Transport)
+	if err != nil {
+		return configoptional.None[otelconfighttp.ServerConfig](), err
+	}
+
 	return configoptional.Some(otelconfighttp.ServerConfig{
-		NetAddr:               confignet.AddrConfig{Endpoint: args.Endpoint, Transport: confignet.TransportTypeTCP},
+		NetAddr:               confignet.AddrConfig{Endpoint: args.Endpoint, Transport: transport},
 		TLS:                   args.TLS.Convert(),
 		KeepAlivesEnabled:     keepAliveEnabled,
 		CORS:                  args.CORS.Convert(),

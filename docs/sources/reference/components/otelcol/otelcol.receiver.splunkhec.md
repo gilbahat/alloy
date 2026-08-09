@@ -54,7 +54,10 @@ You can use the following arguments with `otelcol.receiver.splunkhec`:
 | `read_header_timeout`      | `duration`                 | Maximum time allowed to read request headers.                                                                  | `"1m"`                                                     | no       |
 | `read_timeout`             | `duration`                 | Maximum time allowed to read an HTTP request, including the body.                                              | `""`                                                       | no       |
 | `splitting`                | `string`                   | Defines the splitting strategy used by the receiver when ingesting raw events. Can be set to "line" or "none". | `"line"`                                                   | no       |
+| `transport`                | `string`                   | Transport to use for the HTTP server.                                                                          | `"tcp"`                                                    | no       |
 | `write_timeout`            | `duration`                 | Maximum time allowed to write an HTTP response.                                                                | `"30s"`                                                    | no       |
+
+{{< docs/shared lookup="reference/components/otelcol-http-vsock-transport.md" source="alloy" version="<ALLOY_VERSION>" >}}
 
 By default, `otelcol.receiver.splunkhec` listens for HTTP connections on `localhost:8088`.
 To expose the HTTP server to other machines on your network, configure `endpoint` with the IP address to listen on, or `0.0.0.0:8088` to listen on all network interfaces.

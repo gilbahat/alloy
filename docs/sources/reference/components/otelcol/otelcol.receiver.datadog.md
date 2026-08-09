@@ -54,7 +54,10 @@ You can use the following arguments with `otelcol.receiver.datadog`:
 | `read_header_timeout`    | `duration`                 | Maximum time allowed to read request headers.                                | `"1m"`                                                     | no       |
 | `read_timeout`           | `duration`                 | Maximum time allowed to read an HTTP request, including the body.            | `"1m"`                                                     | no       |
 | `trace_id_cache_size`    | `int`                      | Cache size for mapping 64-bit to 128-bit trace IDs.                          | `0`                                                        | no       |
+| `transport`              | `string`                   | Transport to use for the HTTP server.                                        | `"tcp"`                                                    | no       |
 | `write_timeout`          | `duration`                 | Maximum time allowed to write an HTTP response.                              | `"30s"`                                                    | no       |
+
+{{< docs/shared lookup="reference/components/otelcol-http-vsock-transport.md" source="alloy" version="<ALLOY_VERSION>" >}}
 
 
 
