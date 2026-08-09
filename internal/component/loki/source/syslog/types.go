@@ -10,6 +10,7 @@ import (
 	"github.com/grafana/alloy/internal/component/common/config"
 	scrapeconfig "github.com/grafana/alloy/internal/component/loki/source/syslog/config"
 	st "github.com/grafana/alloy/internal/component/loki/source/syslog/internal/syslogtarget"
+	vsockutil "github.com/grafana/alloy/internal/util/vsock"
 )
 
 // ListenerConfig defines a syslog listener.
@@ -76,8 +77,17 @@ func (sc *ListenerConfig) SetToDefault() {
 
 // Validate implements syntax.Validator.
 func (sc *ListenerConfig) Validate() error {
-	if sc.ListenProtocol != st.ProtocolTCP && sc.ListenProtocol != st.ProtocolUDP {
-		return fmt.Errorf("syslog listener protocol should be either 'tcp' or 'udp', got %s", sc.ListenProtocol)
+	if sc.ListenProtocol != st.ProtocolTCP && sc.ListenProtocol != st.ProtocolUDP && sc.ListenProtocol != st.ProtocolVSock {
+		return fmt.Errorf("syslog listener protocol should be 'tcp', 'udp', or 'vsock', got %s", sc.ListenProtocol)
+	}
+
+	if sc.ListenProtocol == st.ProtocolVSock {
+		if !vsockutil.IsVsockAddress(sc.ListenAddress) {
+			return fmt.Errorf("vsock protocol requires address in vsock://[CID]:PORT format, got %q", sc.ListenAddress)
+		}
+		if sc.TLSConfig != (config.TLSConfig{}) {
+			return fmt.Errorf("tls_config cannot be used with vsock protocol")
+		}
 	}
 
 	if err := sc.SyslogFormat.Validate(); err != nil {

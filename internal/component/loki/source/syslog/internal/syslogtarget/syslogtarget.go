@@ -109,8 +109,15 @@ func NewSyslogTarget(params TargetParams) (*SyslogTarget, error) {
 			MessageHandler: t.handleMessage,
 			ErrorHandler:   t.handleMessageError,
 		})
+	case ProtocolVSock:
+		t.transport = NewSyslogVSockTransport(TransportConfig{
+			Logger:         params.Logger,
+			Target:         params.Config,
+			MessageHandler: t.handleMessage,
+			ErrorHandler:   t.handleMessageError,
+		})
 	default:
-		return nil, fmt.Errorf("invalid transport protocol. expected 'tcp' or 'udp', got '%s'", t.transportProtocol())
+		return nil, fmt.Errorf("invalid transport protocol. expected 'tcp', 'udp', or 'vsock', got '%s'", t.transportProtocol())
 	}
 
 	t.messages = make(chan message)

@@ -28,11 +28,13 @@ import (
 
 	scrapeconfig "github.com/grafana/alloy/internal/component/loki/source/syslog/config"
 	"github.com/grafana/alloy/internal/component/loki/source/syslog/internal/syslogtarget/syslogparser"
+	vsockutil "github.com/grafana/alloy/internal/util/vsock"
 )
 
 var (
-	ProtocolUDP = "udp"
-	ProtocolTCP = "tcp"
+	ProtocolUDP   = "udp"
+	ProtocolTCP   = "tcp"
+	ProtocolVSock = "vsock"
 )
 
 type Transport interface {
@@ -106,6 +108,20 @@ func (t *baseTransport) streamParseConfig() syslogparser.StreamParseConfig {
 
 func (t *baseTransport) connectionLabels(ip string) labels.Labels {
 	return t.connectionLabelsWithHostname(ip, lookupAddr(ip))
+}
+
+// connectionLabelsFromConn returns labels for an accepted connection.
+// It handles both TCP (where a reverse-DNS lookup is performed) and
+// non-TCP connections such as vsock (where the remote address string is used as-is).
+func (t *baseTransport) connectionLabelsFromConn(c net.Conn) labels.Labels {
+	switch v := c.RemoteAddr().(type) {
+	case *net.TCPAddr:
+		ip := v.IP.String()
+		return t.connectionLabelsWithHostname(ip, lookupAddr(ip))
+	default:
+		addr := c.RemoteAddr().String()
+		return t.connectionLabelsWithHostname(addr, addr)
+	}
 }
 
 func (t *baseTransport) connectionLabelsWithHostname(ip, hostname string) labels.Labels {
@@ -571,4 +587,131 @@ func hostFromAddr(addr net.Addr) string {
 		}
 		return host
 	}
+}
+
+// VSockTransport listens for syslog messages over a vsock connection.
+// It behaves like TCPTransport but uses a vsock listener instead of TCP.
+// TLS is not supported (vsock connections are isolated at the hypervisor level).
+type VSockTransport struct {
+	*baseTransport
+	listener net.Listener
+}
+
+// NewSyslogVSockTransport creates a new VSock-based syslog transport.
+// cfg.Target.ListenAddress must be in "vsock://[CID]:PORT" format.
+func NewSyslogVSockTransport(cfg TransportConfig) Transport {
+	return &VSockTransport{
+		baseTransport: newBaseTransport(cfg),
+	}
+}
+
+// Run implements Transport.
+func (t *VSockTransport) Run() error {
+	l, err := vsockutil.Listen(t.config.ListenAddress)
+	if err != nil {
+		return fmt.Errorf("error setting up vsock syslog target: %w", err)
+	}
+	t.listener = l
+	t.logger.Info("syslog listening on address", "address", t.Addr().String(), "protocol", ProtocolVSock)
+
+	t.pendingGoroutines.Add(1)
+	go t.acceptConnections()
+
+	return nil
+}
+
+func (t *VSockTransport) acceptConnections() {
+	defer t.pendingGoroutines.Done()
+
+	l := t.logger.With("address", t.listener.Addr().String())
+
+	backoff := backoff.New(t.ctx, backoff.Config{
+		MinBackoff: 5 * time.Millisecond,
+		MaxBackoff: 1 * time.Second,
+	})
+
+	for {
+		c, err := t.listener.Accept()
+		if err != nil {
+			if !t.Ready() {
+				l.Info("syslog server shutting down", "protocol", ProtocolVSock, "err", t.ctx.Err())
+				return
+			}
+
+			if _, ok := err.(net.Error); ok {
+				l.Warn("failed to accept syslog connection", "err", err, "num_retries", backoff.NumRetries())
+				backoff.Wait()
+				continue
+			}
+
+			l.Error("failed to accept syslog connection. quitting", "err", err)
+			return
+		}
+		backoff.Reset()
+
+		t.pendingGoroutines.Add(1)
+		go t.handleConnection(c)
+	}
+}
+
+func (t *VSockTransport) handleConnection(cn net.Conn) {
+	defer t.pendingGoroutines.Done()
+
+	c := &idleTimeoutConn{cn, t.idleTimeout()}
+
+	handlerCtx, cancel := context.WithCancel(t.ctx)
+	defer cancel()
+	go func() {
+		<-handlerCtx.Done()
+		_ = c.Close()
+	}()
+
+	lbs := t.connectionLabelsFromConn(c)
+
+	cb := func(result *syslog.Result) {
+		if err := result.Error; err != nil {
+			t.handleMessageError(err)
+			return
+		}
+		t.handleMessage(lbs.Copy(), result.Message)
+	}
+
+	if t.config.SyslogFormat == scrapeconfig.SyslogFormatRaw {
+		delim := t.config.RawFormatOptions.Delimiter()
+		for msg, err := range syslogparser.IterStreamRaw(c, delim) {
+			cb(&syslog.Result{
+				Message: msg,
+				Error:   err,
+			})
+		}
+
+		t.logger.Debug("syslog connection closed", "remote", c.RemoteAddr().String())
+		return
+	}
+
+	parseCfg := t.streamParseConfig()
+	err := syslogparser.ParseStream(parseCfg, c, cb)
+	if err != nil {
+		if errors.Is(err, io.EOF) {
+			t.logger.Debug("syslog connection closed", "remote", c.RemoteAddr().String())
+		} else {
+			t.logger.Warn("error initializing syslog stream", "err", err)
+		}
+	}
+}
+
+// Close implements Transport.
+func (t *VSockTransport) Close() error {
+	t.baseTransport.close()
+	return t.listener.Close()
+}
+
+// Wait implements Transport.
+func (t *VSockTransport) Wait() {
+	t.pendingGoroutines.Wait()
+}
+
+// Addr implements Transport.
+func (t *VSockTransport) Addr() net.Addr {
+	return t.listener.Addr()
 }

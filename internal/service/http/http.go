@@ -36,6 +36,7 @@ import (
 	"github.com/grafana/alloy/internal/slogadapter"
 	"github.com/grafana/alloy/internal/static/server"
 	"github.com/grafana/alloy/internal/util/syncbuffer"
+	vsockutil "github.com/grafana/alloy/internal/util/vsock"
 	"github.com/grafana/alloy/syntax/ast"
 	"github.com/grafana/alloy/syntax/printer"
 )
@@ -178,7 +179,13 @@ func (s *Service) Run(ctx context.Context, host service.Host) error {
 		}
 	}()
 
-	netLis, err := net.Listen("tcp", s.opts.HTTPListenAddr)
+	var netLis net.Listener
+	var err error
+	if vsockutil.IsVsockAddress(s.opts.HTTPListenAddr) {
+		netLis, err = vsockutil.Listen(s.opts.HTTPListenAddr)
+	} else {
+		netLis, err = net.Listen("tcp", s.opts.HTTPListenAddr)
+	}
 	if err != nil {
 		// There is no recovering from failing to listen on the port.
 		s.log.Error(fmt.Sprintf("failed to listen on %s", s.opts.HTTPListenAddr), "err", err)

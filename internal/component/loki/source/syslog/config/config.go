@@ -91,7 +91,8 @@ type SyslogTargetConfig struct {
 	ListenAddress string `yaml:"listen_address"`
 
 	// ListenProtocol is the protocol used to listen for syslog messages.
-	// Must be either `tcp` (default) or `udp`
+	// Must be `tcp` (default), `udp`, or `vsock` (Linux only).
+	// When using `vsock`, ListenAddress must be in "vsock://[CID]:PORT" format.
 	ListenProtocol string `yaml:"listen_protocol"`
 
 	// IdleTimeout is the idle timeout for tcp connections.

@@ -184,7 +184,7 @@ func NewRunAsExtensionCommand(params ExtensionModeParams) *cobra.Command {
 func mountRunFlags(r *alloyRun, fset *pflag.FlagSet) {
 	// Server flags
 	fset.
-		StringVar(&r.httpListenAddr, "server.http.listen-addr", r.httpListenAddr, "Address to listen for HTTP traffic on")
+		StringVar(&r.httpListenAddr, "server.http.listen-addr", r.httpListenAddr, "Address to listen for HTTP traffic on. Use vsock://:PORT or vsock://CID:PORT for VSock (Linux only)")
 	fset.StringVar(&r.inMemoryAddr, "server.http.memory-addr", r.inMemoryAddr, "Address to listen for in-memory HTTP traffic on. Change if it collides with a real address")
 	fset.StringVar(&r.uiPrefix, "server.http.ui-path-prefix", r.uiPrefix, "Prefix to serve the HTTP UI at")
 	fset.
