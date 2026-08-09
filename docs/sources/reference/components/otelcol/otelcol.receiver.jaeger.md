@@ -120,6 +120,8 @@ The following arguments are supported:
 | `transport`              | `string`                   | Transport to use for the gRPC server.                                        | `"tcp"`           | no       |
 | `write_buffer_size`      | `string`                   | Size of the write buffer the gRPC server will use for writing to clients.    |                   | no       |
 
+{{< docs/shared lookup="reference/components/otelcol-grpc-vsock-transport.md" source="alloy" version="<ALLOY_VERSION>" >}}
+
 ### `tls`
 
 The `tls` block configures TLS settings used for a server.

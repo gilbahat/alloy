@@ -702,7 +702,7 @@ require (
 	github.com/mdlayher/kobject v0.0.0-20200520190114-19ca17470d7d // indirect
 	github.com/mdlayher/netlink v1.7.2 // indirect
 	github.com/mdlayher/socket v0.6.0 // indirect
-	github.com/mdlayher/vsock v1.2.1
+	github.com/mdlayher/vsock v1.3.0
 	github.com/mdlayher/wifi v0.1.0 // indirect
 	github.com/metalmatze/signal v0.0.0-20210307161603-1c9aa721a97a // indirect
 	github.com/minio/asm2plan9s v0.0.0-20200509001527-cdd76441f9d8 // indirect
@@ -1170,3 +1170,9 @@ replace github.com/hashicorp/vault/api/auth/aws => github.com/DataDog/vault/api/
 
 // Work around DataDog split module ambiguity for pkg/util/system/socket by pinning util/system to the same rc stream used by current datadogexporter deps. Remove when https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/45955 (and follow-up releases) fully align DataDog modules. (auto-synced from collector/builder-config.yaml)
 replace github.com/DataDog/datadog-agent/pkg/util/system => github.com/DataDog/datadog-agent/pkg/util/system v0.76.0-rc.2
+
+// Fork confignet to add the vsock (VM sockets) transport type, so otelcol components can
+// listen and dial over AF_VSOCK on Linux. Fork branch:
+// https://github.com/gilbahat/opentelemetry-collector/tree/confignet-vsock-transport
+// Remove when https://github.com/open-telemetry/opentelemetry-collector/pull/15567 is merged and released.
+replace go.opentelemetry.io/collector/config/confignet => github.com/gilbahat/opentelemetry-collector/config/confignet v0.0.0-20260801201809-a00d36c889bb

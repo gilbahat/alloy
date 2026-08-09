@@ -120,12 +120,12 @@ Omitted fields take their default values.
 
 | Name                              | Type          | Description                                                                                                                                          | Default     | Required |
 | --------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | -------- |
-| `address`                         | `string`      | The `<host:port>` address to listen to for syslog messages.                                                                                          |             | yes      |
+| `address`                         | `string`      | The `<host:port>` address to listen to for syslog messages, or `vsock://[CID]:PORT` when `protocol` is `vsock`.                                       |             | yes      |
 | `idle_timeout`                    | `duration`    | The idle timeout for TCP connections.                                                                                                                | `"120s"`    | no       |
 | `label_structured_data`           | `bool`        | Whether to translate syslog structured data to Loki labels.                                                                                          | `false`     | no       |
 | `labels`                          | `map(string)` | The labels to associate with each received syslog record.                                                                                            | `{}`        | no       |
 | `max_message_length`              | `int`         | The maximum limit to the length of syslog messages.                                                                                                  | `8192`      | no       |
-| `protocol`                        | `string`      | The protocol to listen to for syslog messages. Must be either `tcp` or `udp`.                                                                        | `"tcp"`     | no       |
+| `protocol`                        | `string`      | The protocol to listen to for syslog messages. Must be `tcp`, `udp`, or `vsock`.                                                                      | `"tcp"`     | no       |
 | `rfc3164_default_to_current_year` | `bool`        | Whether to default the incoming timestamp of an `rfc3164` message to the current year.                                                               | `false`     | no       |
 | `rfc5424_allow_empty_msg`         | `bool`        | Whether to forward RFC5424 messages with empty MSG content. When `false`, such messages are dropped. Only applies when `syslog_format` is `rfc5424`. | `false`     | no       |
 | `syslog_format`                   | `string`      | The format for incoming messages. See [supported formats](#supported-formats).                                                                       | `"rfc5424"` | no       |
@@ -143,6 +143,12 @@ The UDP listener waits to read more datagrams when the queue is full.
 
 When `protocol` is `udp`, `udp_host_cache_size` sets the capacity of the LRU cache for reverse-DNS hostname lookups.
 Caching reduces DNS query overhead when many datagrams arrive from the same source addresses.
+
+When `protocol` is `vsock`, the listener accepts syslog messages over Linux VM sockets (`AF_VSOCK`), which lets a hypervisor collect logs from guests that have no network connectivity.
+`address` must use the `vsock://[CID]:PORT` form, where `CID` is the context ID to bind to.
+Omit the `CID` (`vsock://:PORT`) or use `vsock://*:PORT` to listen on any context ID.
+The `tls` block isn't supported with `vsock`, because VM sockets are already isolated at the hypervisor level.
+`vsock` is only available on Linux.
 
 All header fields from parsed RFC5424 and RFC3164 messages become internal labels, prefixed with `__syslog_`.
 

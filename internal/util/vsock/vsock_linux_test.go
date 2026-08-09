@@ -11,11 +11,11 @@ import (
 
 func Test_parseAddr(t *testing.T) {
 	tests := []struct {
-		name    string
-		addr    string
-		wantCID uint32
+		name     string
+		addr     string
+		wantCID  uint32
 		wantPort uint32
-		wantErr string
+		wantErr  string
 	}{
 		{
 			name:     "any CID, explicit port",

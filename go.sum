@@ -940,6 +940,8 @@ github.com/fxamacker/cbor/v2 v2.9.2/go.mod h1:vM4b+DJCtHn+zz7h3FFp/hDAI9WNWCsZj2
 github.com/gabriel-vasile/mimetype v1.4.13 h1:46nXokslUBsAJE/wMsp5gtO500a4F3Nkz9Ufpk2AcUM=
 github.com/gabriel-vasile/mimetype v1.4.13/go.mod h1:d+9Oxyo1wTzWdyVUPMmXFvp4F9tea18J8ufA774AB3s=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
+github.com/gilbahat/opentelemetry-collector/config/confignet v0.0.0-20260801201809-a00d36c889bb h1:2WJ15/JlgZ2/FauukxQMxQ6RDjpqlcRyZdl2PQBbHas=
+github.com/gilbahat/opentelemetry-collector/config/confignet v0.0.0-20260801201809-a00d36c889bb/go.mod h1:26JAYS/NPAYZ2nwerrtpuxgsZQvkQKanQTPaauQr21U=
 github.com/githubexporter/github-exporter v1.3.1 h1:HiNMn/Qb+L+0T/+ndDPguXDWXBviOYwB2pYLBRp0fLI=
 github.com/githubexporter/github-exporter v1.3.1/go.mod h1:JEiYiNUrh2kAZE+sqg/49lQRJHI6+qC5iYyP9YC5K7M=
 github.com/gitleaks/go-gitdiff v0.9.1 h1:ni6z6/3i9ODT685OLCTf+s/ERlWUNWQF4x1pvoNICw0=
@@ -1663,8 +1665,8 @@ github.com/mdlayher/netlink v1.7.2 h1:/UtM3ofJap7Vl4QWCPDGXY8d3GIY2UGSDbK+QWmY8/
 github.com/mdlayher/netlink v1.7.2/go.mod h1:xraEF7uJbxLhc5fpHL4cPe221LI2bdttWlU+ZGLfQSw=
 github.com/mdlayher/socket v0.6.0 h1:ScZPaAGyO1icQnbFrhPM8mnXyMu9qukC1K4ZoM2IQKU=
 github.com/mdlayher/socket v0.6.0/go.mod h1:q7vozUAnxSqnjHc12Fik5yUKIzfZ8ITCfMkhOtE9z18=
-github.com/mdlayher/vsock v1.2.1 h1:pC1mTJTvjo1r9n9fbm7S1j04rCgCzhCOS5DY0zqHlnQ=
-github.com/mdlayher/vsock v1.2.1/go.mod h1:NRfCibel++DgeMD8z/hP+PPTjlNJsdPOmxcnENvE+SE=
+github.com/mdlayher/vsock v1.3.0 h1:bqQfZ1OznI03y6YiXp2sze05RVdzLn/zsfjnjd4+ivI=
+github.com/mdlayher/vsock v1.3.0/go.mod h1:WsuksavOvwCnV5UqGHUkvAvCy+Dqy81y4goKQTzxxNY=
 github.com/mdlayher/wifi v0.1.0 h1:y8wYRUXwok5CtUZOXT3egghYesX0O79E3ALl+SIDm9Q=
 github.com/mdlayher/wifi v0.1.0/go.mod h1:+gBYnZAMcUKHSFzMJXwlz7tLsEHgwDJ9DJCefhJM+gI=
 github.com/metalmatze/signal v0.0.0-20210307161603-1c9aa721a97a h1:0usWxe5SGXKQovz3p+BiQ81Jy845xSMu2CWKuXsXuUM=
@@ -2582,8 +2584,6 @@ go.opentelemetry.io/collector/config/confighttp v0.153.0 h1:hsQIbRghdzTFKU1VoasU
 go.opentelemetry.io/collector/config/confighttp v0.153.0/go.mod h1:Cr9qcfOOjUgxDd+U3SfW6kc1ifPeIFo4Bq4SPeaT+pM=
 go.opentelemetry.io/collector/config/configmiddleware v1.59.0 h1:v1RKvzh8KZfSCwU1e5ESARg/Yj3TXDAN/viLxE4UVg4=
 go.opentelemetry.io/collector/config/configmiddleware v1.59.0/go.mod h1:5Ic7T0GPx03YoCGy/Dn6uYK8QGQL9pJXW+OXrjVXDg8=
-go.opentelemetry.io/collector/config/confignet v1.59.0 h1:vcV5YJj6L+vnF7GiGjBynt5xcxteV6RyIeycLEHkNi8=
-go.opentelemetry.io/collector/config/confignet v1.59.0/go.mod h1:Op+r1B/DtzXgIuKEL7/JkTqtJdL9veu2uEXvSxH3lks=
 go.opentelemetry.io/collector/config/configopaque v1.59.0 h1:32PvJXf3V4P1iUcAmN5E/mIa3+EqLx8/4mOzFU/9CjQ=
 go.opentelemetry.io/collector/config/configopaque v1.59.0/go.mod h1:75nru6ahPcZsCOnVqsSomiBKk8n+iCZgUZXlwSdT8Ik=
 go.opentelemetry.io/collector/config/configoptional v1.59.0 h1:kP751PU6KMxpw64DTPLD6vNDPjxqNJqFo7fPemu65Lc=

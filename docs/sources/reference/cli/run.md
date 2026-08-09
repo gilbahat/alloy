@@ -39,7 +39,7 @@ The following flags are supported:
 
 * `--server.http.enable-pprof`: Enable [`/debug/pprof`][] profiling endpoints. (default `true`).
 * `--server.http.memory-addr`: Address to listen for [in-memory HTTP traffic][] on (default `"alloy.internal:12345"`).
-* `--server.http.listen-addr`: Address to listen for HTTP traffic on (default `"127.0.0.1:12345"`).
+* `--server.http.listen-addr`: Address to listen for HTTP traffic on (default `"127.0.0.1:12345"`). On Linux, you can use `vsock://:PORT` or `vsock://CID:PORT` to listen on a VM socket (`AF_VSOCK`) instead of TCP.
 * `--server.http.ui-path-prefix`: Base path where the UI is exposed (default `"/"`).
 * `--storage.path`: Base directory where components can store data (default `"data-alloy/"`).
 * `--disable-reporting`: Disable [data collection][] (default `false`).
